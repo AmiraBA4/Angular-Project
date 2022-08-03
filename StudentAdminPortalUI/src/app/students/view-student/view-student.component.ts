@@ -162,7 +162,7 @@ export class ViewStudentComponent implements OnInit {
   }
 
   private setImage(): void {
-    if (this.student.profileImageUrl) {
+    if (this.student.profileImageUrl != "123456") {
       this.displayProfileImageUrl = this.studentService.getImagePath(
         this.student.profileImageUrl
       );
