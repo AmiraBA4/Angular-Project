@@ -19,7 +19,7 @@ export class StudentService {
   }
 
   getStudent(studentId: string): Observable<Student> {
-    return this.httpClient.get<Student>(this.baseApiUrl + '/students/' + studentId)
+    return this.httpClient.get<Student>(this.baseApiUrl + '/students/GetStudentAsync/' + studentId)
   }
 
   updateStudent(studentId: string, studentRequest: Student): Observable<Student> {

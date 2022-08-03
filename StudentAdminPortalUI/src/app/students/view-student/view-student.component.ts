@@ -10,7 +10,7 @@ import { StudentService } from 'src/app/Services/student.service';
 @Component({
   selector: 'app-view-student',
   templateUrl: './view-student.component.html',
-  styleUrls: ['./view-student.component.css']
+  styleUrls: ['./view-student.component.css'],
 })
 export class ViewStudentComponent implements OnInit {
   studentId: string | null | undefined;
@@ -25,13 +25,13 @@ export class ViewStudentComponent implements OnInit {
     profileImageUrl: '',
     gender: {
       id: '',
-      description: ''
+      description: '',
     },
     address: {
       id: '',
       physicalAddress: '',
-      postalAddress: ''
-    }
+      postalAddress: '',
+    },
   };
 
   isNewStudent = false;
@@ -42,59 +42,59 @@ export class ViewStudentComponent implements OnInit {
 
   @ViewChild('studentDetailsForm') studentDetailsForm?: NgForm;
 
-  constructor(private readonly studentService: StudentService,
+  constructor(
+    private readonly studentService: StudentService,
     private readonly route: ActivatedRoute,
     private readonly genderService: GenderService,
     private snackbar: MatSnackBar,
-    private router: Router) { }
-
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(
-      (params) => {
-        this.studentId = params.get('id');
-
-        if (this.studentId) {
-          if (this.studentId.toLowerCase() === 'Add'.toLowerCase()) {
-            // -> new Student Functionality
-            this.isNewStudent = true;
-            this.header = 'Add New Student';
-            this.setImage();
-          } else {
-            // -> Existing Student Functionality
-            this.isNewStudent = false;
-            this.header = 'Edit Student';
-            this.studentService.getStudent(this.studentId)
-              .subscribe(
-                (successResponse) => {
-                  this.student = successResponse;
-                  this.setImage();
-                },
-                (errorResponse) => {
-                  this.setImage();
-                }
-              );
-          }
-
-          this.genderService.getGenderList()
-            .subscribe(
-              (successResponse) => {
-                this.genderList = successResponse;
-              }
-            );
+    this.getStudent();
+    this.getGenderList();
+  }
+  getStudent() {
+    this.route.paramMap.subscribe((params) => {
+      this.studentId = params.get('id');
+      if (this.studentId) {
+        if (this.studentId.toLowerCase() === 'Add'.toLowerCase()) {
+          // -> new Student Functionality
+          this.isNewStudent = true;
+          this.header = 'Add New Student';
+          this.setImage();
+        } else {
+          // -> Existing Student Functionality
+          this.isNewStudent = false;
+          this.header = 'Edit Student';
+          this.studentService.getStudent(this.studentId).subscribe(
+            (successResponse) => {
+              this.student = successResponse;
+              this.setImage();
+            },
+            (errorResponse) => {
+              this.setImage();
+            }
+          );
         }
       }
-    );
+    });
   }
 
+  getGenderList() {
+    this.genderService.getGenderList().subscribe((successResponse) => {
+      this.genderList = successResponse;
+    });
+  }
   onUpdate(): void {
     if (this.studentDetailsForm?.form.valid) {
-      this.studentService.updateStudent(this.student.id, this.student)
+      this.studentService
+        .updateStudent(this.student.id, this.student)
         .subscribe(
           (successResponse) => {
             // Show a notification
             this.snackbar.open('Student updated successfully', undefined, {
-              duration: 2000
+              duration: 2000,
             });
           },
           (errorResponse) => {
@@ -106,73 +106,66 @@ export class ViewStudentComponent implements OnInit {
   }
 
   onDelete(): void {
-    this.studentService.deleteStudent(this.student.id)
-      .subscribe(
-        (successResponse) => {
-          this.snackbar.open('Student deleted successfully', undefined, {
-            duration: 2000
-          });
+    this.studentService.deleteStudent(this.student.id).subscribe(
+      (successResponse) => {
+        this.snackbar.open('Student deleted successfully', undefined, {
+          duration: 2000,
+        });
 
-          setTimeout(() => {
-            this.router.navigateByUrl('students');
-          }, 2000);
-        },
-        (errorResponse) => {
-          // Log
-        }
-      );
+        setTimeout(() => {
+          this.router.navigateByUrl('students');
+        }, 2000);
+      },
+      (errorResponse) => {
+        // Log
+      }
+    );
   }
 
   onAdd(): void {
     if (this.studentDetailsForm?.form.valid) {
       // Submit form date to api
-      this.studentService.addStudent(this.student)
-        .subscribe(
-          (successResponse) => {
-            this.snackbar.open('Student added successfully', undefined, {
-              duration: 2000
-            });
+      this.studentService.addStudent(this.student).subscribe(
+        (successResponse) => {
+          this.snackbar.open('Student added successfully', undefined, {
+            duration: 2000,
+          });
 
-            setTimeout(() => {
-              this.router.navigateByUrl(`students/${successResponse.id}`);
-            }, 2000);
-
-          },
-          (errorResponse) => {
-            // Log
-            console.log(errorResponse);
-          }
-        );
+          setTimeout(() => {
+            this.router.navigateByUrl(`students/${successResponse.id}`);
+          }, 2000);
+        },
+        (errorResponse) => {
+          // Log
+          console.log(errorResponse);
+        }
+      );
     }
   }
 
   uploadImage(event: any): void {
     if (this.studentId) {
       const file: File = event.target.files[0];
-      this.studentService.uploadImage(this.student.id, file)
-        .subscribe(
-          (successResponse) => {
-            this.student.profileImageUrl = successResponse;
-            this.setImage();
+      this.studentService.uploadImage(this.student.id, file).subscribe(
+        (successResponse) => {
+          this.student.profileImageUrl = successResponse;
+          this.setImage();
 
-            // Show a notification
-            this.snackbar.open('Profile Image Updated', undefined, {
-              duration: 2000
-            });
-
-          },
-          (errorResponse) => {
-
-          }
-        );
-
+          // Show a notification
+          this.snackbar.open('Profile Image Updated', undefined, {
+            duration: 2000,
+          });
+        },
+        (errorResponse) => {}
+      );
     }
-
   }
 
   private setImage(): void {
     if (this.student.profileImageUrl) {
-      this.displayProfileImageUrl = this.studentService.getImagePath(this.student.profileImageUrl);
+      this.displayProfileImageUrl = this.studentService.getImagePath(
+        this.student.profileImageUrl
+      );
     } else {
       // Display a default
       this.displayProfileImageUrl = '/assets/user.png';
